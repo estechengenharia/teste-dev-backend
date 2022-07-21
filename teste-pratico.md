@@ -1,81 +1,48 @@
-#  Teste para candidatos à vaga de Desenvolvedor PHP Estech
+## Descrição do Projeto
+<p align="center">Api de Sistema de vagas de emprego utilizando laravel</p>
 
-Olá caro desenvolvedor, nesse teste analisaremos seu conhecimento geral e inclusive velocidade de desenvolvimento. Abaixo explicaremos tudo o que será necessário.
+<h4 align="center"> 
+	Sistema de Vagas de Emprego 🚀 
+</h4>
 
-##  Instruções
+### Features
 
-O desafio consiste em implementar uma aplicação API Rest utilizando o framework PHP Laravel, um banco de dados relacional (Mysql), que terá como finalidade a inscrição de candidatos a uma oportunidade de emprego.
+- [x] CRUD Vaga
+- [x] CRUD Usuários
+- [x] Inscrição/Cancelamento de inscrição em vaga
+- [x] Autenticação Laravel Sanctum
 
-Sua aplicação deve possuir:
 
-- CRUD de usuários:
-	- Criar, editar, excluir e listar usuários.
-	- O usuário pode ser Recrutador ou Candidato.
+### 🛠 Tecnologias
 
-- CRUD de vagas:
-	- Criar, editar, excluir e listar vagas.
-	- A vaga pode ser CLT, Pessoa Jurídica ou Freelancer.
+As seguintes ferramentas foram usadas na construção do projeto:
 
-- CRUD de candidatos:
-	- Criar, editar, excluir e listar candidatos.
-	- Um candidato pode se inscrever em uma ou mais vagas.
-	- Deve ser ser possível "pausar" a vaga, evitando a inscrição de candidatos (Somente Recrutador).
+- [Laravel](https://laravel.com/)
+- [Laravel Sail](https://laravel.com/docs/8.x/sail)
+- [MySql](https://www.mysql.com/)
+- [Laravel Sanctum](https://laravel.com/docs/8.x/sanctum)
 
-- Cada CRUD:
-	- Deve ser filtrável e ordenável por qualquer campo, e possuir paginação de 20 itens.
-	- Deve implementar SoftDelete.
-	- Implementar validações de campos obrigatórios e tipos de dados.
-	- Implementar Cache utilizando Redis.
-	- Testes automatizados.
+## Como rodar a aplicação
 
-- Criar um comando para importação de dados a partir [deste arquivo](/example.csv) csv:
-	- Criar a tabela para armazenar os dados a serem importados.		 	
-	- Criar um endpoint para retornar uma análise dos dados importados e executar os seguintes cálculos:
-		- Separar os cálculos pelo dia da data registrada.
-		- Média.
-		- Mediana.
-		- Valor mínimo.
-		- Valor máximo.
-		- % acima de 10.
-		- % abaixo de -10.
-		- % entre -10 e 10.
 
-##  Banco de dados
+- Configure um Alias para o Laravel Sail
+- `alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'`
+- Uma vez que o alias Bash foi configurado, você pode executar comandos Sail simplesmente digitando sail
+- Para iniciar todos os containers docker digite:
+- `sail up`
+- Para instalar os pacotes Execute o comando 
+- `composer install`
+- Execute o comando para configurar o arquivo .env
+- `cp .env.example .env` 
+- Execute o comando para gerar a chave da aplicação 
+- `php artisan key:generate` 
+- Para rodar todas as migrações execute o comando:
+- `sail artisan migrate`
+- Para popular o banco de dados execute o comando
+- `sail artisan db:seed`
 
-- O banco de dados deve ser criado utilizando Migrations do framework Laravel, e também utilizar Seeds e Factorys para popular as informações no banco de dados.
+Acesse a url `http://localhost:80/`.
 
-##  Tecnologias a serem utilizadas
 
-Devem ser utilizadas as seguintes tecnologias:
-	- PHP
-	- Framework Laravel
-	- Docker (construção do ambiente de desenvolvimento)
-	- Mysql
-	- Redis
-
-##  Entrega
-
-- Para iniciar o teste, faça um fork deste repositório; **Se você apenas clonar o repositório não vai conseguir fazer push.**
-
-- Crie uma branch com o seu nome completo;
-- Altere o arquivo teste-pratico.md com as informações necessárias para executar o seu teste (comandos, migrations, seeds, etc);
-
-- Depois de finalizado, envie-nos o pull request;
-
-##  Bônus
-
-- Permitir deleção em massa de itens nos CRUDs.
-- Permitir que o número de itens por página possa ser definido.
-- Implementar autenticação de usuário na aplicação usando sanctum.
-- Alguma implementação utlizando "Jobs" e "Notifications" do Laravel.
-
-##  O que será analisado?
-
-- Organização do código;
-- Aplicação de design patterns;
-- Raciocínio lógico;
-- Aplicação de testes;
-- Legibilidade;
-- Criação do ambiente com Docker.
-
-###  Boa sorte!
+### Documentação da API
+https://documenter.getpostman.com/view/12697037/UzQys4BS
