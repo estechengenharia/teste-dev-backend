@@ -1,8 +1,4 @@
-#  Teste para candidatos à vaga de Desenvolvedor PHP Estech
-
-Olá caro desenvolvedor, nesse teste analisaremos seu conhecimento geral e inclusive velocidade de desenvolvimento. Abaixo explicaremos tudo o que será necessário.
-
-##  Instruções
+## Instruções ##
 
 #### copiar o arquivo .env
 - cp .env.example .env (linux)
