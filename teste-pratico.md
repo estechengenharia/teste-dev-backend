@@ -14,9 +14,9 @@
 > **Status:** Developing ⚠️
 
 
-## Documentação
+## Alguns end points para facilitar
 
-[Documentação](https://documenter.getpostman.com/view/13172220/UzXKWyhY)
+[Endpoints](https://documenter.getpostman.com/view/13172220/UzXKWyhY)
 
 
 ## Autores
