@@ -79,3 +79,9 @@ Devem ser utilizadas as seguintes tecnologias:
 - Criação do ambiente com Docker.
 
 ###  Boa sorte!
+
+
+### Para execultar o projeto
+
+- Para subir os containes;
+	- ./vendor/bin/sail up
