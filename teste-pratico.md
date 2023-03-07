@@ -1,4 +1,10 @@
+
 #  Teste para candidatos à vaga de Desenvolvedor PHP Estech
+
+1 - Rodar Migrations - ./vendor/bin/sail php artisan migrate --seed
+Rodar o comando php artisan command:csvimport ou utilizar o endpoint api/datacsv/import
+
+
 
 Olá caro desenvolvedor, nesse teste analisaremos seu conhecimento geral e inclusive velocidade de desenvolvimento. Abaixo explicaremos tudo o que será necessário.
 
@@ -8,50 +14,18 @@ O desafio consiste em implementar uma aplicação API Rest utilizando o framewor
 
 Sua aplicação deve possuir:
 
-- CRUD de usuários:
-	- Criar, editar, excluir e listar usuários.
-	- O usuário pode ser Recrutador ou Candidato.
-
-- CRUD de vagas:
-	- Criar, editar, excluir e listar vagas.
-	- A vaga pode ser CLT, Pessoa Jurídica ou Freelancer.
-
 - CRUD de candidatos:
-	- Criar, editar, excluir e listar candidatos.
-	- Um candidato pode se inscrever em uma ou mais vagas.
-	- Deve ser ser possível "pausar" a vaga, evitando a inscrição de candidatos (Somente Recrutador).
+	- Deve ser ser possível "pausar" a vaga, evitando a inscrição de candidatos (Somente Recrutador). (Criar endpoint)
 
 - Cada CRUD:
-	- Deve ser filtrável e ordenável por qualquer campo, e possuir paginação de 20 itens.
-	- Deve implementar SoftDelete.
-	- Implementar validações de campos obrigatórios e tipos de dados.
 	- Implementar Cache utilizando Redis.
 	- Testes automatizados.
 
-- Criar um comando para importação de dados a partir [deste arquivo](/example.csv) csv:
-	- Criar a tabela para armazenar os dados a serem importados.		 	
-	- Criar um endpoint para retornar uma análise dos dados importados e executar os seguintes cálculos:
-		- Separar os cálculos pelo dia da data registrada.
-		- Média.
-		- Mediana.
-		- Valor mínimo.
-		- Valor máximo.
-		- % acima de 10.
-		- % abaixo de -10.
-		- % entre -10 e 10.
 
 ##  Banco de dados
 
-- O banco de dados deve ser criado utilizando Migrations do framework Laravel, e também utilizar Seeds e Factorys para popular as informações no banco de dados.
+- O banco de dados deve ser criado utilizando Migrations do framework Laravel, e também utilizar Seeds e Factorys para popular as informações no banco de dados. (Fazer seeds e Factorys)
 
-##  Tecnologias a serem utilizadas
-
-Devem ser utilizadas as seguintes tecnologias:
-	- PHP
-	- Framework Laravel
-	- Docker (construção do ambiente de desenvolvimento)
-	- Mysql
-	- Redis
 
 ##  Entrega
 
@@ -65,7 +39,6 @@ Devem ser utilizadas as seguintes tecnologias:
 ##  Bônus
 
 - Permitir deleção em massa de itens nos CRUDs.
-- Permitir que o número de itens por página possa ser definido.
 - Implementar autenticação de usuário na aplicação usando sanctum.
 - Alguma implementação utlizando "Jobs" e "Notifications" do Laravel.
 
