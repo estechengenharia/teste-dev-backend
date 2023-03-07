@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DataCsv;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DataCsvController extends Controller
@@ -58,12 +59,14 @@ class DataCsvController extends Controller
             if (!DataCsv::exists()) {
                 return response()->json([
                      'error' => true,
-                     'message' => "O Arquivo já foi importado!"
+                     'message' => "O Arquivo CSV ainda foi importado! Não existem dados."
                 ],200);
             }
 
-            $datacsv = DataCsv::all()->groupBy('data');
-
+            $datacsv = Cache::remember('datacsv', now()->addMinutes(60),function (){
+                return DataCsv::all()->groupBy('data');
+            });
+            
             $response = [];
 
             foreach ($datacsv as $key => $data) {
@@ -88,8 +91,8 @@ class DataCsvController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                // 'message' => "Ocorreu uma falha ao tentar recuperar os dados. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
-                'message' => $th->getMessage()
+                'message' => "Ocorreu uma falha ao tentar recuperar os dados. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
+                // 'message' => $th->getMessage()
             ],400);
         }
     }

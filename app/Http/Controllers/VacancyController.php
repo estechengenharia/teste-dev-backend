@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class VacancyController extends Controller
@@ -24,7 +25,9 @@ class VacancyController extends Controller
             $orderBy = $request->orderBy ?? 'id';
             $orderDirection = $request->orderDirection ?? 'asc';
 
-            $vacancys = Vacancy::where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            $vacancys = Cache::remember('vacancys', now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+                return Vacancy::where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            });
 
             if($vacancys->isEmpty()){
                 return response()->json([
@@ -75,7 +78,7 @@ class VacancyController extends Controller
             $user = User::find($request->get('user_id'));
 
             if($user){
-                if($user->user_type!=1){
+                if($user->user_type!="recrutador"){
                     return response()->json([
                         'error' => true,
                         'message' => "O usuário responsável pela vaga informado deve ser um recrutador."
@@ -171,7 +174,7 @@ class VacancyController extends Controller
             $user = User::find($request->get('user_id'));
 
             if($user){
-                if($user->user_type!=1){
+                if($user->user_type!="recrutador"){
                     return response()->json([
                         'error' => true,
                         'message' => "O usuário responsável pela vaga informado deve ser um recrutador."

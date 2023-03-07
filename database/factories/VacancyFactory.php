@@ -16,11 +16,13 @@ class VacancyFactory extends Factory
      */
     public function definition()
     {
+        $type = array("clt", "pj","freelancer");
+
         return [
             "name" => $this->faker->name(),
             "description" => $this->faker->text(),
-            "vacancy_type" => rand(1,3),
-            "user_id" => rand(1,100),
+            "vacancy_type" => $type[array_rand($type)],
+            "user_id" => 1,
             "opened" => 1
         ];
     }

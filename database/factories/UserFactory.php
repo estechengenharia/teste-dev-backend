@@ -21,7 +21,7 @@ class UserFactory extends Factory
             "email" => $this->faker->unique()->safeEmail(),
             "cpf" => substr(str_shuffle('01234567890123456789'),1,11),
             "professional_resume" => $this->faker->text(),
-            "user_type" => rand(1,2),
+            "user_type" => "candidato",
         ];
     }
 }

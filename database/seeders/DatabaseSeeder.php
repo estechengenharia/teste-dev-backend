@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Application;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Database\Seeder;
@@ -17,12 +18,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::factory()->count(100)->create();
-        Vacancy::factory()->count(100)->create();
+        User::factory()->create([
+            'name' => 'João Marcos',
+            "email" => 'teste@teste.com',
+            "cpf" => substr(str_shuffle('01234567890123456789'),1,11),
+            "professional_resume" => "",
+            "user_type" => "recrutador",
+        ]);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        User::factory()->count(99)->create();
+        Vacancy::factory()->count(100)->create();
+        Application::factory()->count(100)->create();
     }
 }

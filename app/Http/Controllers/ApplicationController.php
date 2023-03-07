@@ -6,6 +6,7 @@ use App\Models\Application;
 use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 class ApplicationController extends Controller
@@ -25,7 +26,9 @@ class ApplicationController extends Controller
             $orderBy = $request->orderBy ?? 'id';
             $orderDirection = $request->orderDirection ?? 'asc';
 
-            $applications = Application::with(['vacancy','user'])->where($filterColumn, '=', $filter)->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            $applications = Cache::remember('applications2', now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+                return Application::with(['vacancy','user'])->where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            });
 
             if($applications->isEmpty()){
                 return response()->json([
@@ -70,7 +73,7 @@ class ApplicationController extends Controller
             $user = User::find($request->get('user_id'));
 
             if($user){
-                if($user->user_type!=2){
+                if($user->user_type!="candidato"){
                     return response()->json([
                         'error' => true,
                         'message' => "O usuário deve ser um candidato."
@@ -176,7 +179,7 @@ class ApplicationController extends Controller
             $user = User::find($request->get('user_id'));
 
             if($user){
-                if($user->user_type!=2){
+                if($user->user_type!="candidato"){
                     return response()->json([
                         'error' => true,
                         'message' => "O usuário deve ser um candidato."

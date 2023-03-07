@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
 {
@@ -23,7 +24,10 @@ class UserController extends Controller
             $orderBy = $request->orderBy ?? 'id';
             $orderDirection = $request->orderDirection ?? 'asc';
 
-            $users = User::where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            $users = Cache::remember('users', now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+                return User::where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+            });
+             
 
             if($users->isEmpty()){
                 return response()->json([
@@ -37,8 +41,8 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
-                'message' => "Ocorreu uma falha ao tentar requisitar os usuários. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
-                // 'message' => $th->getMessage()
+                // 'message' => "Ocorreu uma falha ao tentar requisitar os usuários. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
+                'message' => $th->getMessage()
             ],400);
         }
     }
