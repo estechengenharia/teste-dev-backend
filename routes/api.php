@@ -31,6 +31,7 @@ Route::prefix('vacancy')->group(function () {
     Route::get('/{id}', [App\Http\Controllers\VacancyController::class, 'show'])->name('vacancy.show');
     Route::post('/', [App\Http\Controllers\VacancyController::class, 'store'])->name('vacancy.store');
     Route::put('/{id}', [App\Http\Controllers\VacancyController::class, 'update'])->name('vacancy.update');
+    Route::put('/pause/{id}', [App\Http\Controllers\VacancyController::class, 'pause'])->name('vacancy.pause');
     Route::delete('/{id}', [App\Http\Controllers\VacancyController::class, 'destroy'])->name('vacancy.destroy');
 });
 

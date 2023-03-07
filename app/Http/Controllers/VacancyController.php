@@ -250,4 +250,34 @@ class VacancyController extends Controller
             ],400);
         }
     }
+
+    public function pause($id){
+        try {
+
+            $vacancy = Vacancy::find($id);
+
+            if(!$vacancy){
+                return response()->json([
+                    'error' => true,
+                    'message' => "Nenhuma vaga encontrada com o ID especificado."
+                ],200);
+            }
+
+            $vacancy->opened = 0;
+
+            $vacancy->save();
+
+            return [
+                'success' => true,
+                'message' => "Vaga pausada com sucesso."
+            ];
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => true,
+                'message' => "Ocorreu uma falha ao tentar pausar a vaga. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
+                //'message' => $th->getMessage()
+            ],400);
+        }
+    }
 }
