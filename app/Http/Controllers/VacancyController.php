@@ -25,7 +25,7 @@ class VacancyController extends Controller
             $orderBy = $request->orderBy ?? 'id';
             $orderDirection = $request->orderDirection ?? 'asc';
 
-            $vacancys = Cache::remember('vacancys', now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+            $vacancys = Cache::tags('vacancys')->remember("$perPage$filterColumn$filter$orderBy$orderDirection", now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
                 return Vacancy::where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
             });
 
@@ -57,54 +57,64 @@ class VacancyController extends Controller
     public function store(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'name'=>'required|string|max:255',
-                'description'=>'required|string',
-                'vacancy_type'=>'required|string|in:clt,pj,freelancer',
-                'user_id'=>'required|integer',
-                'opened' => 'boolean'
-            ],
-            ['vacancy_type.in' => 'Given data must be clt,pj ou freelancer']
-            );
-            
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'validation error',
-                    'errors' => $validator->errors()
-                ], 400);
-            }
 
-            $user = User::find($request->get('user_id'));
-
-            if($user){
-                if($user->user_type!="recrutador"){
+            if(auth()->user()->user_type == 'recrutador'){
+                $validator = Validator::make($request->all(), [
+                    'name'=>'required|string|max:255',
+                    'description'=>'required|string',
+                    'vacancy_type'=>'required|string|in:clt,pj,freelancer',
+                    'user_id'=>'required|integer',
+                    'opened' => 'boolean'
+                ],
+                ['vacancy_type.in' => 'Given data must be clt,pj ou freelancer']
+                );
+                
+                if ($validator->fails()) {
                     return response()->json([
                         'error' => true,
-                        'message' => "O usuário responsável pela vaga informado deve ser um recrutador."
+                        'message' => 'validation error',
+                        'errors' => $validator->errors()
+                    ], 400);
+                }
+
+                $user = User::find($request->get('user_id'));
+
+                if($user){
+                    if($user->user_type!="recrutador"){
+                        return response()->json([
+                            'error' => true,
+                            'message' => "O usuário responsável pela vaga informado deve ser um recrutador."
+                        ],400);
+                    }
+                } else {
+                    return response()->json([
+                        'error' => true,
+                        'message' => "O usuário responsável pela vaga informado é inexistente."
                     ],400);
                 }
+        
+                $vacancy = new Vacancy([
+                    'name' => $request->get('name'),
+                    'description' => $request->get('description'),
+                    'vacancy_type' => $request->get('vacancy_type'),
+                    'user_id' => $request->get('user_id') ?? auth()->user()->id,
+                    'opened' => $request->get('opened') ?? 1,
+                ]);
+        
+                $vacancy->save();
+
+                Cache::tags('vacancys')->flush();
+
+                return [
+                    'success' => true,
+                    'message' => "Vaga cadastrada com sucesso."
+                ];
             } else {
                 return response()->json([
                     'error' => true,
-                    'message' => "O usuário responsável pela vaga informado é inexistente."
-                ],400);
+                    'message' => "Usuário autenticado não pode cadastrar uma nova vaga pois não é recrutador"
+                ],401);
             }
-    
-            $vacancy = new Vacancy([
-                'name' => $request->get('name'),
-                'description' => $request->get('description'),
-                'vacancy_type' => $request->get('vacancy_type'),
-                'user_id' => $request->get('user_id'),
-                'opened' => $request->get('opened') ?? 1,
-            ]);
-    
-            $vacancy->save();
-
-            return [
-                'success' => true,
-                'message' => "Vaga cadastrada com sucesso."
-            ];
     
         } catch (\Throwable $th) {
             return response()->json([
@@ -125,7 +135,9 @@ class VacancyController extends Controller
     {
         try {
 
-            $vacancy = Vacancy::find($id);
+            $vacancy = Cache::remember("vacancy".$id, now()->addMinutes(60),function () use ($id){ 
+                return Vacancy::find($id);
+            });
 
             if(!$vacancy){
                 return response()->json([
@@ -155,6 +167,7 @@ class VacancyController extends Controller
     public function update(Request $request, $id)
     {
         try {
+           
             $validator = Validator::make($request->all(), [
                 'name'=>'required|string|max:255',
                 'description'=>'required|string',
@@ -187,28 +200,38 @@ class VacancyController extends Controller
                 ],400);
             }
 
-            
             $vacancy = Vacancy::find($id);
 
-            if(!$vacancy){
+            if(auth()->user()->id == $vacancy->user_id){
+
+                if(!$vacancy){
+                    return response()->json([
+                        'error' => true,
+                        'message' => "Nenhuma vaga encontrada com o ID especificado."
+                    ],200);
+                }
+
+                $vacancy->name = $request->get('name');
+                $vacancy->description = $request->get('description');
+                $vacancy->vacancy_type = $request->get('vacancy_type');
+                $vacancy->user_id = $request->get('user_id');
+                $vacancy->opened = $request->get('opened') ?? 1;
+
+                $vacancy->save();
+
+                Cache::forget("vacancy$id");
+                Cache::tags('vacancys')->flush();
+
+                return [
+                    'success' => true,
+                    'message' => "Vaga atualizada com sucesso."
+                ];
+            } else {
                 return response()->json([
                     'error' => true,
-                    'message' => "Nenhuma vaga encontrada com o ID especificado."
-                ],200);
+                    'message' => "Usuário autenticado não pode alterar a vaga pois não é o recrutador responsável pela vaga"
+                ],401);
             }
-    
-            $vacancy->name = $request->get('name');
-            $vacancy->description = $request->get('description');
-            $vacancy->vacancy_type = $request->get('vacancy_type');
-            $vacancy->user_id = $request->get('user_id');
-            $vacancy->opened = $request->get('opened') ?? 1;
-
-            $vacancy->save();
-
-            return [
-                'success' => true,
-                'message' => "Vaga atualizada com sucesso."
-            ];
     
         } catch (\Throwable $th) {
             return response()->json([
@@ -228,6 +251,7 @@ class VacancyController extends Controller
     public function destroy($id)
     {
         try {
+           
 
             $vacancy = Vacancy::find($id);
 
@@ -238,12 +262,24 @@ class VacancyController extends Controller
                 ],200);
             }
 
-            $vacancy->delete();
+            if(auth()->user()->id == $vacancy->user_id){
 
-            return [
-                'success' => true,
-                'message' => "Vaga removida com sucesso."
-            ];
+                $vacancy->delete();
+
+                Cache::forget("vacancy$id");
+                Cache::tags('vacancys')->flush();
+
+                return [
+                    'success' => true,
+                    'message' => "Vaga removida com sucesso."
+                ];
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Usuário autenticado não pode remover a vaga pois não é o recrutador responsável pela vaga"
+                ],401);
+            }
+
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -266,14 +302,22 @@ class VacancyController extends Controller
                 ],200);
             }
 
-            $vacancy->opened = 0;
+            if(auth()->user()->id == $vacancy->user_id){
 
-            $vacancy->save();
+                $vacancy->opened = 0;
 
-            return [
-                'success' => true,
-                'message' => "Vaga pausada com sucesso."
-            ];
+                $vacancy->save();
+
+                return [
+                    'success' => true,
+                    'message' => "Vaga pausada com sucesso."
+                ];
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Usuário autenticado não pode pausar a vaga pois não é o recrutador responsável pela vaga"
+                ],401);
+            }
 
         } catch (\Throwable $th) {
             return response()->json([

@@ -23,11 +23,11 @@ class Application extends Model
 
     public function user()
     {
-        return $this->hasMany(User::class, 'id', 'user_id');
+        return $this->hasMany(User::class, 'id', 'user_id')->withTrashed();
     }
 
     public function vacancy()
     {
-        return $this->belongsTo(Vacancy::class, 'id', 'user_id');
+        return $this->belongsTo(Vacancy::class, 'vacancy_id', 'id')->withTrashed();
     }
 }
