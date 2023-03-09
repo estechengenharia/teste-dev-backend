@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class VacancyController extends Controller
@@ -208,7 +209,7 @@ class VacancyController extends Controller
                     return response()->json([
                         'error' => true,
                         'message' => "Nenhuma vaga encontrada com o ID especificado."
-                    ],200);
+                    ],400);
                 }
 
                 $vacancy->name = $request->get('name');
@@ -323,6 +324,88 @@ class VacancyController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => "Ocorreu uma falha ao tentar pausar a vaga. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
+                //'message' => $th->getMessage()
+            ],400);
+        }
+    }
+
+    /**
+     * Remove multiples specified resources from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function batchDestroy(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'ids'=>'required|array',
+                'ids.*'=>'sometimes|integer',
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'validation error',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            if(auth()->user()->user_type == 'recrutador'){
+
+                $ids = $request->get('ids');
+
+                DB::beginTransaction();
+
+                foreach ($ids as $id) {
+
+                    $vacancy = Vacancy::find($id);
+
+                    if(!$vacancy){
+                        return response()->json([
+                            'error' => true,
+                            'message' => "Nenhuma vaga encontrada com o ID $id especificado. Operação em lote cancelada!"
+                        ],400);
+                        DB::rollback();
+                    }
+
+                    if(auth()->user()->id != $vacancy->user_id){
+                        return response()->json([
+                            'error' => true,
+                            'message' => "Usuário autenticado não pode remover a vaga de ID $id pois não é o recrutador responsável pela vaga. Operação em lote cancelada!"
+                        ],401);
+                        DB::rollback();
+                    }
+
+                    $vacancy->delete();
+        
+                    Cache::forget("vacancy$id");
+
+                }
+
+                Cache::tags('vacancys')->flush();
+
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Exclusão de vagas em lote só pode ser realizar por um recrutador"
+                ],401);
+            }
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => "Vagas removidas com sucesso.",
+                'ids_removed' => $ids
+            ];
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                'error' => true,
+                'message' => "Ocorreu uma falha ao tentar remover as vagas. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
                 //'message' => $th->getMessage()
             ],400);
         }

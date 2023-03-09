@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [App\Http\Controllers\VacancyController::class, 'update'])->name('vacancy.update');
         Route::put('/pause/{id}', [App\Http\Controllers\VacancyController::class, 'pause'])->name('vacancy.pause');
         Route::delete('/{id}', [App\Http\Controllers\VacancyController::class, 'destroy'])->name('vacancy.destroy');
+        Route::delete('/', [App\Http\Controllers\VacancyController::class, 'batchDestroy'])->name('vacancy.batch.destroy');
     });
 
     Route::prefix('user')->group(function () {
@@ -33,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [App\Http\Controllers\UserController::class, 'show'])->name('user.show');
         Route::put('/{id}', [App\Http\Controllers\UserController::class, 'update'])->name('user.update');
         Route::delete('/{id}', [App\Http\Controllers\UserController::class, 'destroy'])->name('user.destroy');
+        Route::delete('/', [App\Http\Controllers\UserController::class, 'batchDestroy'])->name('user.batch.destroy');
     });
     
     Route::prefix('application')->group(function () {

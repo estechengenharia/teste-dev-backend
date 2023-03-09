@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -263,6 +264,78 @@ class UserController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => "Ocorreu uma falha ao tentar remover o usuário. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
+                //'message' => $th->getMessage()
+            ],400);
+        }
+    }
+
+    /**
+     * Remove multiples specified resources from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function batchDestroy(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), [
+                'ids'=>'required|array',
+                'ids.*'=>'sometimes|integer',
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'validation error',
+                    'errors' => $validator->errors()
+                ], 400);
+            }
+
+            if(auth()->user()->user_type == 'recrutador'){
+
+                $ids = $request->get('ids');
+
+                DB::beginTransaction();
+
+                foreach ($ids as $id) {
+                    $user = User::find($id);
+
+                    if(!$user){
+                        return response()->json([
+                            'error' => true,
+                            'message' => "Nenhum usuário encontrado com o ID $id especificado. Operação em lote cancelada!"
+                        ],200);
+                        DB::rollback();
+                    }
+
+                    $user->delete();
+
+                    Cache::forget("user$id");
+                }
+
+                Cache::tags('users')->flush();
+
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Exclusão de usuários em lote só pode ser realizar por um recrutador"
+                ],401);
+            }
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => "Usuários removidos com sucesso.",
+                'ids_removed' => $ids
+            ];
+
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json([
+                'error' => true,
+                'message' => "Ocorreu uma falha ao tentar remover os usuários. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
                 //'message' => $th->getMessage()
             ],400);
         }
