@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendNotificationsJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,4 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-
+Route::get('send-notifications', function(){
+    SendNotificationsJob::dispatch();
+    return 'Disparou!';
+});

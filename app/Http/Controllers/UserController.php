@@ -65,9 +65,9 @@ class UserController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name'=>'required|string|max:255',
-                'cpf'=>'required|unique:user|string|size:11',
+                'cpf'=>'required|unique:user,deleted_at,NULL|string|size:11',
                 'user_type'=>'required|string|in:recrutador,candidato',
-                'email' => 'required|unique:user|email',
+                'email' => 'required|unique:user,deleted_at,NULL|email',
                 'senha' => 'required'
             ],
             ['user_type.in' => 'Given data must be recrutador or candidato']
