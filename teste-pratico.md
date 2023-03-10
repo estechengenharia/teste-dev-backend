@@ -58,3 +58,9 @@ Foi criado uma Job simples que manda um email para todos os usuários:
 
 Foi criado um documento para facilitar o entendimento da api, que pode ser acessado atráves do link: 
 https://documenter.getpostman.com/view/17548537/2s93Joz6tG
+
+Usuarios para teste:
+| Email | Senha |
+|--------|--------|
+| recrutador@teste.com | 123 |
+| candidato@teste.com | 123 |
