@@ -1,64 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+#  Teste para candidatos à vaga de Desenvolvedor PHP Estech
 
-## About Laravel
+##  Instruções
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 📋 Pré-requisitos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Requisitos para instalação e execução:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+- Laravel 9.x
+- Docker
+- Composer
+```
 
-## Learning Laravel
+### 🔧 Instalação e Execução
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Executar os seguintes comandos para trabalhar localmente:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Instalar as dependencias com o composer:
+```
+composer i
+```
+- Criar o .env copando do example através do comando: 
+```
+cp .env.example .env (linux)
+ou
+copy .env.example .env (windows)
+```
+- Subir container:
+```
+./vendor/bin/sail up -d
+```
+    - OBS: Caso dê alguma falha no container, rebuildar a applicação com o comando ./vendor/bin/sail build --no-cache
+- Rodar Migrations e Seeders: 
+```
+./vendor/bin/sail artisan migrate --seed
+```
+- Importar CSV de exemplo com o comando: 
+```
+./vendor/bin/sail artisan command:csvimport 
+```
+ou utilizar o endpoint http://localhost/api/datacsv/import
+- Rodar migrations do BD de teste: 
+```
+./vendor/bin/sail artisan migrate --seed --env=testing
+```
+- Rodar os testes: 
+```
+./vendor/bin/sail artisan test
+```
 
-## Laravel Sponsors
+Foi criado uma Job simples que manda um email para todos os usuários:
+- Disparar job pelo endpoint http://localhost/api/send-notifications
+- Visualizar o disparo pelo mailhog: http://localhost:8025/
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 🔧 Documentação da API
 
-### Premium Partners
+Foi criado um documento para facilitar o entendimento da api, que pode ser acessado atráves do link: 
+https://documenter.getpostman.com/view/17548537/2s93Joz6tG
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Usuarios para teste:
+| Email | Senha |
+|--------|--------|
+| recrutador@teste.com | 123 |
+| candidato@teste.com | 123 |

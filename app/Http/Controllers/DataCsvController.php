@@ -63,7 +63,7 @@ class DataCsvController extends Controller
                 ],200);
             }
 
-            $datacsv = Cache::remember('datacsv', now()->addMinutes(60),function (){
+            $datacsv = Cache::rememberForever('datacsv',function (){
                 return DataCsv::all()->groupBy('data');
             });
             

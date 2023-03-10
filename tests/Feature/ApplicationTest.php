@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Application;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -18,7 +20,9 @@ class ApplicationTest extends TestCase
             "perPage" => "20"
         ];
 
-        $response = $this->json('GET', 'api/application', $bodyRaw, ['Accept' => 'application/json']);
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('GET', 'api/application', $bodyRaw, ['Accept' => 'application/json']);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -50,6 +54,27 @@ class ApplicationTest extends TestCase
             ]);
     }
 
+    public function testSuccessfulShow()
+    {
+        $bodyRaw = [];
+
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('GET', 'api/application/1', $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([  
+                "id",
+                "user_id",
+                "vacancy_id",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "vacancy",
+                "user",
+            ]);
+    }
+
     public function testSuccessfulStore()
     {
 
@@ -58,7 +83,9 @@ class ApplicationTest extends TestCase
             "vacancy_id" =>  "1",
         ];
 
-        $response = $this->json('POST', "api/application", $bodyRaw, ['Accept' => 'application/json']);
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('POST', "api/application", $bodyRaw, ['Accept' => 'application/json']);
 
         $response->assertStatus(200)
             ->assertJsonStructure([  
@@ -67,4 +94,45 @@ class ApplicationTest extends TestCase
             ]);
 
     }
+
+    public function testSuccessfulUpdate()
+    {
+
+        $bodyRaw = [
+            "user_id" => "2",
+            "vacancy_id" =>  "2",
+        ];
+
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('PUT', "api/application/1", $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([  
+                'success',
+                'message'
+            ]);
+
+    }
+
+    public function testSuccessfulDestroy()
+    {
+
+        $bodyRaw = [];
+
+        $lastApplicationId = Application::latest()->first()->id;
+
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('DELETE', "api/application/$lastApplicationId", $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([  
+                'success',
+                'message'
+            ]);
+
+    }
+
+
 }

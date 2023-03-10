@@ -20,6 +20,8 @@ return new class extends Migration
             $table->text('professional_resume')->nullable();
             $table->string('user_type')->default('candidato');
             $table->string('email');
+            $table->string('senha');
+            $table->string('remember_token')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

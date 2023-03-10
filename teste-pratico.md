@@ -3,13 +3,64 @@
 
 ##  Instruções
 
-1 - Rodar o composer: composer i
-2 - Criar o .env: cp .env.example .env
-3 - Subir os containeres: ./vendor/bin/sail up -d
-OBS: Caso dê alguma falha nos containeres, rebuildar a applicação com o comando ./vendor/bin/sail build --no-cache
-4 - Rodar Migrations e seeders: ./vendor/bin/sail artisan migrate --seed
-5 - Importar CSV de exemplo com o comando ./vendor/bin/sail artisan command:csvimport ou utilizar o endpoint api/datacsv/import
-6 - Rodar migrations do BD de teste: ./vendor/bin/sail artisan migrate --seed --env=testing
-7 - Rodar os testes: ./vendor/bin/sail artisan test
+### 📋 Pré-requisitos
 
-Documentação básica da API: https://documenter.getpostman.com/view/17548537/2s93Joz6tG
+Requisitos para instalação e execução:
+
+```
+- Laravel 9.x
+- Docker
+- Composer
+```
+
+### 🔧 Instalação e Execução
+
+Executar os seguintes comandos para trabalhar localmente:
+
+- Instalar as dependencias com o composer:
+```
+composer i
+```
+- Criar o .env copando do example através do comando: 
+```
+cp .env.example .env (linux)
+ou
+copy .env.example .env (windows)
+```
+- Subir container:
+```
+./vendor/bin/sail up -d
+```
+    - OBS: Caso dê alguma falha no container, rebuildar a applicação com o comando ./vendor/bin/sail build --no-cache
+- Rodar Migrations e Seeders: 
+```
+./vendor/bin/sail artisan migrate --seed
+```
+- Importar CSV de exemplo com o comando: 
+```
+./vendor/bin/sail artisan command:csvimport 
+```
+ou utilizar o endpoint http://localhost/api/datacsv/import
+- Rodar migrations do BD de teste: 
+```
+./vendor/bin/sail artisan migrate --seed --env=testing
+```
+- Rodar os testes: 
+```
+./vendor/bin/sail artisan test
+```
+
+Foi criado uma Job simples que manda um email para todos os usuários:
+- Disparar job pelo endpoint http://localhost/api/send-notifications
+- Visualizar o disparo pelo mailhog: http://localhost:8025/
+
+### 🔧 Documentação da API
+
+Foi criado um documento para facilitar o entendimento da api, que pode ser acessado atráves do link: 
+https://documenter.getpostman.com/view/17548537/2s93Joz6tG
+
+Usuarios para teste:
+| Email | Senha |
+|--------|--------|
+| recrutador@teste.com | 123 |
+| candidato@teste.com | 123 |

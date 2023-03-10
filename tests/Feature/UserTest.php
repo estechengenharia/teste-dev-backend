@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\User;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
+
     public function testSuccessfulIndex()
     {
         $bodyRaw = [
@@ -18,7 +18,9 @@ class UserTest extends TestCase
             "perPage" => "20"
         ];
 
-        $response = $this->json('GET', 'api/user', $bodyRaw, ['Accept' => 'application/json']);
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('GET', 'api/user', $bodyRaw, ['Accept' => 'application/json']);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -51,6 +53,35 @@ class UserTest extends TestCase
             ]);
     }
 
+    public function testSuccessfulShow()
+    {
+        $bodyRaw = [
+            "filterCollumn" => "name",
+            "filter" => "",
+            "orderBy" => "name",
+            "orderDirection" => "asc",
+            "perPage" => "20"
+        ];
+
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('GET', 'api/user/1', $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "id",
+                "name",
+                "cpf",
+                "professional_resume",
+                "user_type",
+                "email",
+                "created_at",
+                "updated_at",
+                "deleted_at",    
+            ]);
+    }
+
+
     public function testSuccessfulStore()
     {
 
@@ -59,10 +90,57 @@ class UserTest extends TestCase
             "cpf" => "99999999999",
             "user_type" =>  "candidato",
             "email" => "teste@email.com",
-            "professional_resume" => "Lorem impsum"
+            "professional_resume" => "Lorem impsum",
+            "senha" => "123"
         ];
 
-        $response = $this->json('POST', "api/user", $bodyRaw, ['Accept' => 'application/json']);
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('POST', "api/user", $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([  
+                'success',
+                'message'
+            ]);
+    }
+
+    public function testSuccessfulUpdate()
+    {
+        
+
+        $bodyRaw = [
+            "name" => "Recrutador Teste Pós Update",
+            "cpf" => "99999999999",
+            "user_type" =>  "candidato",
+            "email" => "teste@email.com",
+            "professional_resume" => "Lorem impsum pós update teste",
+            "senha" => "123"
+        ];
+
+        $user = User::find(1);
+
+        $lastUserId = User::latest()->first()->id;
+
+        $response = $this->actingAs($user)->json('PUT', "api/user/$lastUserId", $bodyRaw, ['Accept' => 'application/json']);
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([  
+                'success',
+                'message'
+            ]);
+    }
+
+    public function testSuccessfulDestroy()
+    {
+
+        $bodyRaw = [];
+
+        $lastUserId = User::latest()->first()->id;
+
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)->json('DELETE', "api/user/$lastUserId", $bodyRaw, ['Accept' => 'application/json']);
 
         $response->assertStatus(200)
             ->assertJsonStructure([  

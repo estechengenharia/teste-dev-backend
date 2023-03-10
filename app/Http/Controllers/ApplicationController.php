@@ -26,9 +26,15 @@ class ApplicationController extends Controller
             $orderBy = $request->orderBy ?? 'id';
             $orderDirection = $request->orderDirection ?? 'asc';
 
-            $applications = Cache::remember('applications2', now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
-                return Application::with(['vacancy','user'])->where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
-            });
+            if(auth()->user()->user_type == 'recrutador'){
+                $applications = Cache::tags('applications')->remember("$perPage$filterColumn$filter$orderBy$orderDirection", now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+                    return Application::with(['vacancy','user'])->where($filterColumn, 'LIKE', '%' . $filter . '%')->orderBy($orderBy, $orderDirection)->paginate($perPage);
+                });
+            } else {
+                $applications = Cache::tags('applications')->remember("$perPage$filterColumn$filter$orderBy$orderDirection".auth()->user()->id, now()->addMinutes(60),function () use ($filterColumn,$filter,$orderBy, $orderDirection,$perPage){
+                    return Application::with(['vacancy','user'])->where($filterColumn, 'LIKE', '%' . $filter . '%')->where('user_id',auth()->user()->id)->orderBy($orderBy, $orderDirection)->paginate($perPage);
+                });
+            }
 
             if($applications->isEmpty()){
                 return response()->json([
@@ -109,6 +115,8 @@ class ApplicationController extends Controller
     
             $application->save();
 
+            Cache::tags('applications')->flush();
+
             return [
                 'success' => true,
                 'message' => "Candidatura cadastrada com sucesso."
@@ -133,8 +141,10 @@ class ApplicationController extends Controller
     {
         try {
 
-            $application = Application::with(['vacancy','user'])->find($id);
-
+            $application = Cache::remember("application".$id, now()->addMinutes(60),function () use ($id){ 
+                return Application::with(['vacancy','user'])->find($id);
+            });
+           
             if(!$application){
                 return response()->json([
                     'error' => true,
@@ -142,7 +152,14 @@ class ApplicationController extends Controller
                 ],200);
             }
 
-            return response()->json($application);
+            if(auth()->user()->user_type == 'recrutador' || auth()->user()->id == $application->user_id ){
+                return response()->json($application);
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Usuário autenticado não tem permissão para acessar os dados solicitados."
+                ],401);
+            }
 
         } catch (\Throwable $th) {
             return response()->json([
@@ -208,7 +225,7 @@ class ApplicationController extends Controller
                 ],400);
             }
 
-            $application = Application::find($id);
+            $application = Application::with('vacancy')->find($id);
 
             if(!$application){
                 return response()->json([
@@ -216,16 +233,27 @@ class ApplicationController extends Controller
                     'message' => "Nenhuma candidatura encontrada com o ID especificado."
                 ],200);
             }
-    
-            $application->vacancy_id = $request->get('vacancy_id');
-            $application->user_id = $request->get('user_id');
-    
-            $application->save();
 
-            return [
-                'success' => true,
-                'message' => "Candidatura atualizada com sucesso."
-            ];
+            if(auth()->user()->id == $application->vacancy->user_id || auth()->user()->id == $application->user_id){
+
+                $application->vacancy_id = $request->get('vacancy_id');
+                $application->user_id = $request->get('user_id');
+
+                $application->save();
+
+                Cache::forget("application$id");
+                Cache::tags('applications')->flush();
+
+                return [
+                    'success' => true,
+                    'message' => "Candidatura atualizada com sucesso."
+                ];
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Candidatura não pode ser atualizada pois o usuário autenticado não é o responsável pela vaga ou o candidato"
+                ],401);
+            }
     
         } catch (\Throwable $th) {
             return response()->json([
@@ -246,7 +274,7 @@ class ApplicationController extends Controller
     {
         try {
 
-            $application = Application::find($id);
+            $application = Application::with('vacancy')->find($id);
 
             if(!$application){
                 return response()->json([
@@ -255,18 +283,30 @@ class ApplicationController extends Controller
                 ],200);
             }
 
-            $application->delete();
+            if(auth()->user()->id == $application->vacancy->user_id || auth()->user()->id == $application->user_id){
 
-            return [
-                'success' => true,
-                'message' => "Candidatura removida com sucesso."
+                $application->delete();
+                
+                Cache::forget("application$id");
+                Cache::tags('applications')->flush();
+
+                return [
+                    'success' => true,
+                    'message' => "Candidatura removida com sucesso."
             ];
+        
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => "Usuário autenticado não pode remover a candidatura pois não é o recrutador responsável pela vaga ou o candidato"
+                ],401);
+            }
 
         } catch (\Throwable $th) {
             return response()->json([
                 'error' => true,
                 'message' => "Ocorreu uma falha ao tentar remover a candidatura. <br> Por favor, verifique a documentação ou entre em contato com o suporte."
-                //'message' => $th->getMessage()
+                // 'message' => $th->getMessage()
             ],400);
         }
     }
