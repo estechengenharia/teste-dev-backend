@@ -11,6 +11,7 @@ Requisitos para instalação e execução:
 - Laravel 9.x
 - Docker
 - Composer
+```
 
 ### 🔧 Instalação e Execução
 
