@@ -17,14 +17,38 @@ Requisitos para instalação e execução:
 
 Executar os seguintes comandos para trabalhar localmente:
 
-- Instalar as dependencias com o composer: composer i
-- Criar o .env copando do example através do comando: cp .env.example .env (linux) ou copy .env.example .env (windows)
-- Subir container: ./vendor/bin/sail up -d
-OBS: Caso dê alguma falha no container, rebuildar a applicação com o comando ./vendor/bin/sail build --no-cache
-- Rodar Migrations e Seeders: ./vendor/bin/sail artisan migrate --seed
-- Importar CSV de exemplo com o comando: ./vendor/bin/sail artisan command:csvimport ou utilizar o endpoint http://localhost/api/datacsv/import
-- Rodar migrations do BD de teste: ./vendor/bin/sail artisan migrate --seed --env=testing
-- Rodar os testes: ./vendor/bin/sail artisan test
+- Instalar as dependencias com o composer:
+```
+composer i
+```
+- Criar o .env copando do example através do comando: 
+```
+cp .env.example .env (linux)
+ou
+copy .env.example .env (windows)
+```
+- Subir container:
+```
+./vendor/bin/sail up -d
+```
+    - OBS: Caso dê alguma falha no container, rebuildar a applicação com o comando ./vendor/bin/sail build --no-cache
+- Rodar Migrations e Seeders: 
+```
+./vendor/bin/sail artisan migrate --seed
+```
+- Importar CSV de exemplo com o comando: 
+```
+./vendor/bin/sail artisan command:csvimport 
+```
+ou utilizar o endpoint http://localhost/api/datacsv/import
+- Rodar migrations do BD de teste: 
+```
+./vendor/bin/sail artisan migrate --seed --env=testing
+```
+- Rodar os testes: 
+```
+./vendor/bin/sail artisan test
+```
 
 Foi criado uma Job simples que manda um email para todos os usuários:
 - Disparar job pelo endpoint http://localhost/api/send-notifications
