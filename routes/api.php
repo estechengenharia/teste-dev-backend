@@ -1,7 +1,6 @@
 <?php
 
 use App\Jobs\SendNotificationsJob;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
