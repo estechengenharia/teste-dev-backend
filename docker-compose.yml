@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - user=${HOST_USER:-laravel}
+        - uid=${HOST_UID:-1000}
+    command: sh -c "php artisan serve --host=0.0.0.0 --port=8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+    environment:
+      - WWWUSER=${HOST_UID}
+    networks:
+      - laravel-network
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: laravel
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel_phpmyadmin
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - laravel-network
+
+  redis:
+    image: redis:alpine
+    container_name: laravel_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - laravel-network
+  worker:
+    build:
+      context: .
+      target: base
+    command: bash -c "while [ ! -f /var/www/bootstrap/cache/services.php ]; do sleep 2; done && php artisan queue:work --tries=3 --timeout=30"
+    volumes:
+      - .:/var/www
+    depends_on:
+      - app
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      
+volumes:
+  dbdata:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  laravel-network:
+    driver: bridge
