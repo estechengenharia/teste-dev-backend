@@ -13,7 +13,10 @@ docker-compose exec app php artisan key:generate
 sudo chmod -R 775 storage/
 sudo chmod -R 775 bootstrap/cache/
 
-#rodar os testes
+# roda as migrations e seeders
+docker-compose exec app php artisan migrate:fresh --seed
+
+# rodar os testes
 sudo docker-compose exec app php artisan test --env=testing
 
 # importação do csv
